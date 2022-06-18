@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"log"
+	"math/rand"
 )
 
 // See RFC 1035: https://datatracker.ietf.org/doc/html/rfc1035
@@ -77,8 +78,6 @@ func GenerateDNSMessage(domain string) DNSMessage {
 	}
 	sizes = append(sizes, index-sizes[len(sizes)-1]-1)
 
-	log.Println("sizes:", sizes)
-
 	var parts []byte
 	parts = append(parts, byte(sizes[0]))
 	offset := 1
@@ -95,22 +94,24 @@ func GenerateDNSMessage(domain string) DNSMessage {
 	}
 	parts = append(parts, 0)
 
-	log.Printf("%s is %x.\n", domain, parts)
-
 	header := DNSHeader{
-		Xid:     0xbeef, // Randomly chosen ID. ;)
-		Flags:   0x0100, // Q=0, RD=1.
-		Qdcount: 0x1,    // Sending one query.
+		Xid:     uint16(rand.Uint32()), // Randomly chosen ID. ;)
+		Flags:   0x0100,                // Q=0, RD=1.
+		Qdcount: 0x1,                   // Sending one query.
 		Ancount: 0x0,
 		Nscount: 0x0,
 		Arcount: 0x0,
 	}
+
+	log.Printf("DNSHeader: %#v", header)
 
 	question := DNSQuestion{
 		Name:     parts,
 		Dnstype:  0xff, // RR type.
 		Dnsclass: 0x1,  // Querying on the internet (IN).
 	}
+
+	log.Printf("DNSQuestion: %#v", question)
 
 	return DNSMessage{
 		Header:   header,
