@@ -143,6 +143,8 @@ func PerformDNSRequest(dnsServerAddress, targetAddress string, query DNSMessage)
 
 	defer conn.Close()
 
+	log.Println("targetIP:", conn.LocalAddr().String())
+
 	messageBytes := query.ToByteSlice()
 	log.Printf("messageBytes: %x\n", messageBytes)
 
