@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"log"
 	"net"
 )
@@ -23,6 +24,41 @@ type DNSQuestion struct {
 type DNSMessage struct {
 	Header   DNSHeader
 	Question DNSQuestion
+}
+
+func (m *DNSMessage) ToByteSlice() []byte {
+	var messageBytes []byte
+	buffer := make([]byte, 2)
+
+	// // Process header section.
+	binary.BigEndian.PutUint16(buffer, m.Header.Xid)
+	messageBytes = append(messageBytes, buffer...)
+
+	binary.BigEndian.PutUint16(buffer, m.Header.Flags)
+	messageBytes = append(messageBytes, buffer...)
+
+	binary.BigEndian.PutUint16(buffer, m.Header.Qdcount)
+	messageBytes = append(messageBytes, buffer...)
+
+	binary.BigEndian.PutUint16(buffer, m.Header.Ancount)
+	messageBytes = append(messageBytes, buffer...)
+
+	binary.BigEndian.PutUint16(buffer, m.Header.Nscount)
+	messageBytes = append(messageBytes, buffer...)
+
+	binary.BigEndian.PutUint16(buffer, m.Header.Arcount)
+	messageBytes = append(messageBytes, buffer...)
+
+	// Process question section.
+	messageBytes = append(messageBytes, m.Question.Name...)
+
+	binary.BigEndian.PutUint16(buffer, m.Question.Dnstype)
+	messageBytes = append(messageBytes, buffer...)
+
+	binary.BigEndian.PutUint16(buffer, m.Question.Dnsclass)
+	messageBytes = append(messageBytes, buffer...)
+
+	return messageBytes
 }
 
 func GenerateDNSMessage(domain string) DNSMessage {
@@ -98,6 +134,11 @@ func PerformDNSRequest(dnsServerAddress, targetAddress string, query DNSMessage)
 	}
 
 	defer conn.Close()
+
+	messageBytes := query.ToByteSlice()
+	log.Printf("messageBytes: %x\n", messageBytes)
+
+	conn.Write(messageBytes)
 
 	return nil
 }
