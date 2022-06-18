@@ -1,10 +1,10 @@
 package main
 
 func main() {
-	query := "sayan.page"
+	query := "fb.me"
 	queryMessage := GenerateDNSMessage(query)
 
-	err := PerformDNSRequest("dns.google:53", "localhost:2000", queryMessage)
+	err := PerformDNSRequest("1.0.0.1:53", "", queryMessage)
 	if err != nil {
 		panic(err)
 	}

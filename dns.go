@@ -99,7 +99,7 @@ func GenerateDNSMessage(domain string) DNSMessage {
 	log.Printf("%s is %x.\n", domain, parts)
 
 	header := DNSHeader{
-		Xid:     0xbeef, // Randomly chosen ID. ;)
+		Xid:     0xeeef, // Randomly chosen ID. ;)
 		Flags:   0x0100, // Q=0, RD=1.
 		Qdcount: 0x1,    // Sending one query.
 		Ancount: 0x0,
@@ -125,12 +125,18 @@ func PerformDNSRequest(dnsServerAddress, targetAddress string, query DNSMessage)
 		log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, dnsServerAddress)
 	}
 
-	// laddr, err := net.ResolveUDPAddr("udp", targetAddress)
-	// if err != nil {
-	// 	log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, targetAddress)
-	// }
+	var laddr *net.UDPAddr
 
-	conn, err := net.DialUDP("udp", nil, raddr)
+	if targetAddress != "" {
+		laddr, err = net.ResolveUDPAddr("udp", targetAddress)
+		if err != nil {
+			log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, targetAddress)
+		}
+	} else {
+		laddr = nil
+	}
+
+	conn, err := net.DialUDP("udp", laddr, raddr)
 	if err != nil {
 		log.Fatalf("Encountered error `%s` trying to start UDP communication.", err)
 	}
