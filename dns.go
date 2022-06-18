@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/binary"
 	"log"
-	"net"
 )
 
 // See RFC 1035: https://datatracker.ietf.org/doc/html/rfc1035
@@ -117,38 +116,4 @@ func GenerateDNSMessage(domain string) DNSMessage {
 		Header:   header,
 		Question: question,
 	}
-}
-
-func PerformDNSRequest(dnsServerAddress, targetAddress string, query DNSMessage) error {
-	raddr, err := net.ResolveUDPAddr("udp", dnsServerAddress)
-	if err != nil {
-		log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, dnsServerAddress)
-	}
-
-	var laddr *net.UDPAddr
-
-	if targetAddress != "" {
-		laddr, err = net.ResolveUDPAddr("udp", targetAddress)
-		if err != nil {
-			log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, targetAddress)
-		}
-	} else {
-		laddr = nil
-	}
-
-	conn, err := net.DialUDP("udp", laddr, raddr)
-	if err != nil {
-		log.Fatalf("Encountered error `%s` trying to start UDP communication.", err)
-	}
-
-	defer conn.Close()
-
-	log.Println("targetIP:", conn.LocalAddr().String())
-
-	messageBytes := query.ToByteSlice()
-	log.Printf("messageBytes: %x\n", messageBytes)
-
-	conn.Write(messageBytes)
-
-	return nil
 }
