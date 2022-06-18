@@ -6,6 +6,7 @@ import (
 	"net"
 )
 
+// See RFC 1035: https://datatracker.ietf.org/doc/html/rfc1035
 type DNSHeader struct {
 	Xid     uint16 // Randomly chosen identifier.
 	Flags   uint16 // Bit-mask to indicate request/response.
@@ -15,9 +16,10 @@ type DNSHeader struct {
 	Arcount uint16 // Number of additional records.
 }
 
+// See RFC 1035: https://datatracker.ietf.org/doc/html/rfc1035
 type DNSQuestion struct {
 	Name     []byte // Query domain name.
-	Dnstype  uint16 // The QTYPE (1 = A)
+	Dnstype  uint16 // The QTYPE (1 = A, 255 = all)
 	Dnsclass uint16 // The QCLASS (1 = IN) (IN = Internet)
 }
 
@@ -107,8 +109,8 @@ func GenerateDNSMessage(domain string) DNSMessage {
 
 	question := DNSQuestion{
 		Name:     parts,
-		Dnstype:  0x1, // Querying A records.
-		Dnsclass: 0x1, // Querying on the internet (IN).
+		Dnstype:  0xff, // RR type.
+		Dnsclass: 0x1,  // Querying on the internet (IN).
 	}
 
 	return DNSMessage{
@@ -123,12 +125,12 @@ func PerformDNSRequest(dnsServerAddress, targetAddress string, query DNSMessage)
 		log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, dnsServerAddress)
 	}
 
-	laddr, err := net.ResolveUDPAddr("udp", targetAddress)
-	if err != nil {
-		log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, targetAddress)
-	}
+	// laddr, err := net.ResolveUDPAddr("udp", targetAddress)
+	// if err != nil {
+	// 	log.Fatalf("Encountered error `%s` while trying to resolve address `%s`.\n", err, targetAddress)
+	// }
 
-	conn, err := net.DialUDP("udp", laddr, raddr)
+	conn, err := net.DialUDP("udp", nil, raddr)
 	if err != nil {
 		log.Fatalf("Encountered error `%s` trying to start UDP communication.", err)
 	}
