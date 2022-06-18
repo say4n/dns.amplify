@@ -99,7 +99,7 @@ func GenerateDNSMessage(domain string) DNSMessage {
 	log.Printf("%s is %x.\n", domain, parts)
 
 	header := DNSHeader{
-		Xid:     0xeeef, // Randomly chosen ID. ;)
+		Xid:     0xbeef, // Randomly chosen ID. ;)
 		Flags:   0x0100, // Q=0, RD=1.
 		Qdcount: 0x1,    // Sending one query.
 		Ancount: 0x0,
