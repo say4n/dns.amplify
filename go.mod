@@ -1,4 +1,4 @@
-module dns.amplify
+module github.com/say4n/dns.amplify
 
 go 1.18
 
