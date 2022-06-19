@@ -27,3 +27,7 @@ This file defines various utility functions used by the main.go file.
 - [udp socket programming: dns](https://w3.cs.jmu.edu/kirkpams/OpenCSF/Books/csf/html/UDPSockets.html)
 - [ip spoofing does not work on macOS?](https://dev.to/conner/ip-spoofing-theory-and-implementation-ep6)
 - [spoofing UDP source IP in golang](https://github.com/dimalinux/spoofsourceip)
+
+# disclaimer
+
+This codebase is strictly for educational purposes.
