@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 	"net"
-	"regexp"
-	"strings"
 
 	"github.com/google/gopacket/pcap"
 	"github.com/jackpal/gateway"
@@ -18,7 +16,7 @@ func performDNSRequest(query DNSMessage) {
 	defaultGatewayIP, _ := gateway.DiscoverGateway()
 	log.Printf("defaultGatewayIP: %#v\n", defaultGatewayIP.String())
 
-	defaultGatewayMac, _ := net.ParseMAC(standardizeMACFormat(arp.Search(defaultGatewayIP.String())))
+	defaultGatewayMac, _ := net.ParseMAC(StandardizeMACFormat(arp.Search(defaultGatewayIP.String())))
 	log.Printf("defaultGatewayMac: %#v\n", defaultGatewayMac)
 
 	udpFrameOptions := UdpFrameOptions{
@@ -26,7 +24,7 @@ func performDNSRequest(query DNSMessage) {
 		destIP:       net.IPv4(1, 1, 1, 1),
 		sourcePort:   4000,
 		destPort:     53,
-		sourceMac:    getMacAddrForInterface("en0"),
+		sourceMac:    GetMacAddrForInterface("en0"),
 		destMac:      defaultGatewayMac,
 		isIPv6:       false,
 		payloadBytes: query.ToByteSlice(),
@@ -47,26 +45,6 @@ func performDNSRequest(query DNSMessage) {
 		log.Fatal(err)
 	}
 	log.Println("DNS request sent.")
-}
-
-// standardizeMACFormat fixes dash-separated MAC addresses from Windows ipconfig
-// and macOS arp results which don't include leading zeros (:9: instead of :09:)
-func standardizeMACFormat(macAddr string) string {
-	macAddr = strings.Replace(macAddr, "-", ":", -1)
-	return regexp.MustCompile(`(\b)(\d)(\b)`).ReplaceAllString(macAddr, "${1}0${2}${3}")
-}
-
-func getMacAddrForInterface(iface string) net.HardwareAddr {
-	ifas, err := net.Interfaces()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, ifa := range ifas {
-		if ifa.Name == iface {
-			return ifa.HardwareAddr
-		}
-	}
-	return nil
 }
 
 func main() {
