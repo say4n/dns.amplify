@@ -9,6 +9,8 @@ import (
 	"github.com/mostlygeek/arp"
 )
 
+// performDNSRequest creates a DNS query message, creates a UDP frame with the DNS query message
+// as the payload, and sends the UDP frame to the default gateway.
 func performDNSRequest(query DNSMessage) {
 	messageBytes := query.ToByteSlice()
 	log.Printf("messageBytes: %x\n", messageBytes)

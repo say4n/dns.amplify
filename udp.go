@@ -9,6 +9,12 @@ import (
 	"github.com/google/gopacket/layers"
 )
 
+// UdpFrameOptions is a struct that holds all the information needed to create a UDP frame.
+// @property sourceIP - The source IP address of the UDP packet.
+// @property {uint16} sourcePort - The source port of the UDP packet.
+// @property sourceMac - The MAC address of the sender.
+// @property {bool} isIPv6 - Whether the frame is IPv6 or IPv4.
+// @property {[]byte} payloadBytes - The bytes of the payload to be sent.
 type UdpFrameOptions struct {
 	sourceIP, destIP     net.IP
 	sourcePort, destPort uint16
@@ -17,6 +23,16 @@ type UdpFrameOptions struct {
 	payloadBytes         []byte
 }
 
+// "A SerializableNetworkLayer is a gopacket.NetworkLayer that can be serialized to
+// a buffer."
+//
+// The first thing to notice is that the type is an interface.  This means that any
+// type that implements the interface can be used as a SerializableNetworkLayer.
+// The second thing to notice is that the interface has two methods:
+// gopacket.NetworkLayer and SerializeTo. The first method is a method that is
+// already defined in the gopacket library. The second method is a method that we
+// are defining. This is the method that will be called by the
+// serialization code to serialize the layer.
 type SerializableNetworkLayer interface {
 	gopacket.NetworkLayer
 	SerializeTo(b gopacket.SerializeBuffer, opts gopacket.SerializeOptions) error
